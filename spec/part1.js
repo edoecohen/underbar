@@ -365,7 +365,6 @@
         
         expect(total).to.equal(11);
       });
-
     });
   });
 
