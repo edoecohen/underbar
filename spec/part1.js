@@ -6,6 +6,10 @@
     describe('identity', function() {
       var uniqueObject = {};
 
+      _.identity = function(x){
+        return x;
+      };
+
       it('should return whatever value is passed into it', function() {
         expect(_.identity(1)).to.equal(1);
         expect(_.identity('string')).to.equal('string');
@@ -33,6 +37,23 @@
     });
 
     describe('last', function() {
+
+      _.last = function(x, y){
+        if(y == undefined){
+          return x.pop();
+        }
+        else if (y <= x.length) {
+          var newArray = [];
+          for(var i=0; i<y; i++){
+            newArray.unshift(x.pop());
+          }
+          return newArray;
+        }
+        else if (y >= x.length) {
+          return x;
+        };
+      };
+
       it('should pull the last element from an array', function() {
         expect(_.last([1,2,3])).to.equal(3);
       });
@@ -51,7 +72,22 @@
     });
 
     describe('each', function() {
+
+      _.each = function(list, iterator, context) {
+          if(list.length){
+            for(var i=0 ; i<list.length ; i++ ){
+              iterator(list[i], i, list);
+            };
+          }
+          else if(list.length == undefined){
+            for(var key in list){
+              iterator(list[key], key, list);
+            }
+          }
+        };
+
       it('should iterate over arrays, providing access to the element, index, and array itself', function() {
+        
         var animals = ['ant', 'bat', 'cat'];
         var iterationInputs = [];
 
@@ -126,6 +162,17 @@
     });
 
     describe('filter', function() {
+
+      _.filter = function(list, iterator, context) {
+        var newArray = [];
+        for(var i=0 ; i<list.length ; i++ ){
+          if(iterator(list[i], i, list) == true){
+            newArray.push(list[i]);
+          };
+        };
+        return newArray;
+      };
+
       it('should return all even numbers in an array', function() {
         var isEven = function(num) { return num % 2 === 0; };
         var evens = _.filter([1, 2, 3, 4, 5, 6], isEven);
@@ -150,6 +197,17 @@
     });
 
     describe('reject', function() {
+
+       _.reject = function(list, iterator, context) {
+        var newArray = [];
+        for(var i=0 ; i<list.length ; i++ ){
+          if(iterator(list[i], i, list) == false){
+            newArray.push(list[i]);
+          };
+        };
+        return newArray;
+      };
+
       it('should reject all even numbers', function() {
         var isEven = function(num) { return num % 2 === 0; };
         var odds = _.reject([1, 2, 3, 4, 5, 6], isEven);
@@ -174,6 +232,20 @@
     });
 
     describe('uniq', function() {
+
+      _.uniq = function(array) {
+        var newArray = [];
+        for(var i=0 ; i < array.length ; i++){
+          if(_.indexOf(newArray, parseInt(array[i],10)) !== -1){
+            continue;
+          }
+          else {
+            newArray.push(array[i]);
+          }
+        };
+        return newArray;
+      };
+
       it('should return all unique values contained in an unsorted array', function() {
         var numbers = [1, 2, 1, 3, 1, 4];
 
@@ -196,6 +268,15 @@
     });
 
     describe('map', function() {
+
+      _.map = function(list, iterator, context){
+        var newArray = [];
+        for(var i=0 ; i<list.length ; i++ ){
+          newArray.push(iterator(list[i]));
+        };
+        return newArray;
+      };
+
       it('should apply a function to every value in an array', function() {
         var doubledNumbers = _.map([1, 2, 3], function(num) {
           return num * 2;
@@ -237,6 +318,26 @@
     });
 
     describe('reduce', function() {
+
+      _.reduce = function(list, iterator, memo, context){
+        if(memo !== undefined){
+          var sum = memo;
+          for(var i=0 ; i<list.length ; i++ ){
+            sum += iterator(memo, list[i]);
+          };
+          return sum;
+        }
+        else {
+          var sum = list[0];
+          memo = 0;
+          for(var i=1 ; i<list.length ; i++ ){
+            sum += iterator(memo, list[i]);
+          };
+          return sum;
+        };
+        
+      };
+
       it('should be able to sum up an array', function() {
         var add = function(tally, item) {return tally + item; };
         var total = _.reduce([1, 2, 3], add, 0);
@@ -247,21 +348,21 @@
       it('should use the first element as an accumulator when none is given', function() {
         var add = function(tally, item) {return tally + item; };
         var total = _.reduce([1, 2, 3], add);
-
+        
         expect(total).to.equal(6);
       });
 
       it('should invoke the iterator on the first element when given an accumulator', function() {
         var sumSquares = function(tally, item) {return tally + item * item; };
         var total = _.reduce([2, 3], sumSquares, 0);
-
+        
         expect(total).to.equal(13);
       });
 
       it('should not invoke the iterator on the first element when using it as an accumulator', function() {
         var sumSquares = function(tally, item) {return tally + item * item; };
         var total = _.reduce([2, 3], sumSquares);
-
+        
         expect(total).to.equal(11);
       });
 
