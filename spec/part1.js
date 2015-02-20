@@ -269,13 +269,13 @@
 
     describe('map', function() {
 
-      _.map = function(list, iterator, context){
-        var newArray = [];
-        for(var i=0 ; i<list.length ; i++ ){
-          newArray.push(iterator(list[i]));
+        _.map = function(list, iterator, context) {
+          var newArray = [];
+          _.each(list, function(item, index, list){
+            newArray.push(iterator(list[index]));
+          });
+          return newArray;
         };
-        return newArray;
-      };
 
       it('should apply a function to every value in an array', function() {
         var doubledNumbers = _.map([1, 2, 3], function(num) {
@@ -367,5 +367,4 @@
       });
     });
   });
-
 }());
