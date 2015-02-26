@@ -3,6 +3,14 @@
 
   describe('Part II', function() {
     describe('contains', function() {
+
+      _.contains = function(list, value){
+        if(_.indexOf(list, value) == -1){
+          return false;
+        }
+        else return true;
+      };
+
       it('should return false if a collection does not contain a user-specified value', function() {
         expect(_.contains([4, 5, 6], 2)).to.be.false;
       });
@@ -17,6 +25,38 @@
     });
 
     describe('every', function() {
+
+      _.every = function(list, predicate, context){
+        var newArray = [];
+
+        if(list.length == 0 || list == undefined){
+          return true;
+        }
+
+        else if(list.length > 0){
+
+          if(predicate){
+            _.each(list, function(item, index, list){
+              newArray.push(predicate(list[index]));
+            });
+          }
+
+          else if (!predicate) {
+            newArray = list;
+          };
+
+          if(
+            _.contains(newArray, undefined) ||
+            _.contains(newArray, false) ||
+            _.contains(newArray, 0) ||
+            _.contains(newArray, null)
+            == true) {
+            return false;
+            }
+          else return true;
+        };
+      };
+
       var isEven = function(num) {
         return num % 2 === 0;
       };
@@ -60,6 +100,51 @@
     });
 
     describe('some', function() {
+
+      _.some = function(list, predicate, context){
+        var newArray = [];
+        var newArrayTypes = [];
+
+        if(list.length == 0 || list == undefined){
+          return false;
+        }
+
+        else if(list.length > 0){
+
+          if(predicate){
+            _.each(list, function(item, index, list){
+              newArray.push(predicate(list[index]));
+            });
+          }
+
+          else if (!predicate) {
+            newArray = list;
+          };
+
+          _.each(newArray, function(item, index, list) {
+            newArrayTypes.push(typeof list[index]);
+          });
+
+          var checkNums = function(){
+            for(var i=0; i<list.length; i++){
+              if(newArrayTypes[i] == "number" && (newArray[i] !== 0)){
+                return true;
+              };
+            };
+          };
+              
+          if(
+            checkNums() ||
+            _.contains(newArray, true) ||
+            _.contains(newArray, {}) ||
+            _.contains(newArrayTypes, "string")
+            == true) {
+            return true;
+            }
+          else return false;
+        };
+      };
+
       var isEven = function(number){
         return number % 2 === 0;
       };
@@ -105,6 +190,26 @@
     });
 
     describe('extend', function() {
+
+      _.extend = function(destination, sources){
+        var length = arguments.length,
+            keys = [];
+
+        if (length < 2) { return destination };
+
+        for(var index = 1; index < length; index++){
+          var source = arguments[index];
+          for (var key in source) keys.push(key);
+          for(var i=0; i< keys.length; i++){
+            var key = keys[i];
+            for (key in source) {
+              destination[key] = source[key];
+            };
+          };  
+        };
+        return destination;
+      }; 
+        
       it('returns the first argument', function() {
         var to = {};
         var from = {};
@@ -117,7 +222,7 @@
         var to = {};
         var from = { a: 'b' };
         var extended = _.extend(to, from);
-
+        
         expect(extended.a).to.equal('b');
       });
 
@@ -138,7 +243,7 @@
       });
 
       it('should extend from multiple source objects', function() {
-        var extended = _.extend({ x: 1 }, { a: 2 }, { b:3 });
+        var extended = _.extend({ x: 1 }, { a: 2 }, { b: 3 });
 
         expect(extended).to.eql({ x: 1, a: 2, b: 3 });
       });
@@ -151,6 +256,28 @@
     });
 
     describe('defaults', function() {
+
+      _.defaults = function(destination, sources){
+        var length = arguments.length,
+            keys = [];
+
+        if (length < 2) { return destination };
+
+        for(var index = 1; index < length; index++){
+          var source = arguments[index];
+          for (var key in source) keys.push(key);
+          for(var i=0; i< keys.length; i++){
+            var key = keys[i];
+            for (key in source) {
+              if(destination[key] == undefined) {
+                destination[key] = source[key];
+              };
+            };
+          };  
+        };
+        return destination;
+      }; 
+
       it('returns the first argument', function() {
         var to = {};
         var from = {};
@@ -209,6 +336,23 @@
     });
 
     describe('memoize', function() {
+
+      _.memoize = function(func, hasher){
+        var memoize = function(key){
+          if(memoize.cache[key] != null){
+            return memoize.cache[key];
+          }
+          else {
+            memoize.cache[key] = func.apply(this, arguments);
+            return memoize.cache[key];
+          };
+        };
+        
+        memoize.cache = {};
+        return memoize;
+      };
+
+
       var add, memoAdd;
 
       beforeEach(function() {
@@ -244,6 +388,12 @@
     });
 
     describe('delay', function() {
+
+     _.delay = function(func, wait){
+      var args = Array.prototype.slice.call(arguments, 2);
+      return setTimeout(function(){ return func.apply(this, args); }, wait);
+     };
+
       var callback;
 
       beforeEach(function() {
@@ -254,6 +404,7 @@
         _.delay(callback, 100);
         clock.tick(99);
 
+        
         expect(callback).to.have.not.been.called;
 
         clock.tick(1);
@@ -270,6 +421,33 @@
     });
 
     describe('shuffle', function() {
+
+      _.shuffle = function(list){
+        var counter = list.length, temp, index;
+        var shuffled = [];
+
+        for (var i = 0; i < counter; i++ ){
+          shuffled[i] = list[i];
+        };
+
+        // While there are elements in the array
+        while (counter > 0) {
+          // Pick a random index
+          index = Math.floor(Math.random() * counter);
+
+          // Decrease counter by 1
+          counter--;
+
+          // And swap the last element with it
+          temp = shuffled[counter];
+          shuffled[counter] = shuffled[index];
+          shuffled[index] = temp;
+        }
+
+        return shuffled;
+      };
+
+
       it('should not modify the original object', function() {
         var numbers = [4, 5, 6];
         var shuffled = _.shuffle(numbers).sort();
